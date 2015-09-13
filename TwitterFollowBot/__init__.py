@@ -278,6 +278,39 @@ class TwitterBot:
 
                 print("Error: %s" % (str(api_error)), file=sys.stderr)
 
+    def auto_rt_user_popular(self, user, count=1, result_type="recent"):
+        """
+            Retweets tweets that match a phrase (hashtag, word, etc.).
+        """
+
+        result  = self.TWITTER_CONNECTION.statuses.user_timeline(screen_name=user,count=count,
+                                                                result_type=result_type)
+
+        for tweet in result:
+            try:
+                # only do popular stuff
+                if tweet["user"]["screen_name"] != user or tweet['retweet_count']<10:
+                    continue
+                print ('trying ', tweet['text'].encode('utf-8'))
+                try:
+                    rt = self.TWITTER_CONNECTION.statuses.retweet(id=tweet["id"])
+                    print("Retweeted: %s" % (rt["text"].encode("utf-8")), file=sys.stdout)
+                    pass
+                except TwitterHTTPError as api_error:
+                    print('already retweeted')
+
+            # when you have already retweeted a tweet, this error is thrown
+            except TwitterHTTPError as api_error:
+                # quit on rate limit errors
+                if "rate limit" in str(api_error).lower():
+                    print("You have been rate limited. "
+                          "Wait a while before running the bot again.", file=sys.stderr)
+                    return
+
+                print("Error: %s" % (str(api_error)), file=sys.stderr)
+
+
+
     def auto_follow(self, phrase, count=100, result_type="recent"):
         """
             Follows anyone who tweets about a phrase (hashtag, word, etc.).

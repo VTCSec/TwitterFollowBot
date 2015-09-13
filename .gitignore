@@ -6,6 +6,7 @@ following.txt
 already-followed.txt
 bin/
 include/
+build/
 lib/
 share/
 pip-selfcheck.json
