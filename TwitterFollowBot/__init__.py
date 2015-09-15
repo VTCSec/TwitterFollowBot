@@ -291,13 +291,16 @@ class TwitterBot:
                 # only do popular stuff
                 if tweet["user"]["screen_name"] != user or tweet['retweet_count']<10:
                     continue
+                if tweet['retweeted']:
+                    continue
+
                 print ('trying ', tweet['text'].encode('utf-8'))
                 try:
                     rt = self.TWITTER_CONNECTION.statuses.retweet(id=tweet["id"])
                     print("Retweeted: %s" % (rt["text"].encode("utf-8")), file=sys.stdout)
                     pass
                 except TwitterHTTPError as api_error:
-                    print('already retweeted')
+                    print('cant retweet:',api_error)
 
             # when you have already retweeted a tweet, this error is thrown
             except TwitterHTTPError as api_error:
