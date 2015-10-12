@@ -8,7 +8,7 @@ bot = TwitterBot(sys.argv[1])
 while True:
     print 'retweeting..'
     try:
-        bot.auto_rt_user_popular('_conorpp',count=3)
+        bot.auto_rt_user_popular('_conorpp',count=4)
         bot.sync_follows()
     except Exception as e:
         print(e)

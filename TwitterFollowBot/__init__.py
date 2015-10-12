@@ -289,7 +289,7 @@ class TwitterBot:
         for tweet in result:
             try:
                 # only do popular stuff
-                if tweet["user"]["screen_name"] != user or tweet['retweet_count']<10:
+                if tweet['retweet_count']<10:
                     continue
                 if tweet['retweeted']:
                     continue
