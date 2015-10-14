@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 Copyright 2015 Randal S. Olson
 
@@ -24,6 +23,7 @@ import sys
 import time
 import random
 
+import re
 
 class TwitterBot:
 
@@ -278,27 +278,37 @@ class TwitterBot:
 
                 print("Error: %s" % (str(api_error)), file=sys.stderr)
 
+    def print_tweet(self,t):
+        for i in t:
+            print( i,":",t[i])
+
     def auto_rt_user_popular(self, user, count=1, result_type="recent"):
         """
             Retweets tweets that match a phrase (hashtag, word, etc.).
+            Returns a list of tweets that were retweeted.
+            Does nothing with tweets already tweeted by account.
         """
 
         result  = self.TWITTER_CONNECTION.statuses.user_timeline(screen_name=user,count=count,
                                                                 result_type=result_type)
-
+        retweets = []
         for tweet in result:
             try:
+
                 # only do popular stuff
                 if tweet['retweet_count']<10:
                     continue
+
                 if tweet['retweeted']:
                     continue
 
-                print ('trying ', tweet['text'].encode('utf-8'))
                 try:
                     rt = self.TWITTER_CONNECTION.statuses.retweet(id=tweet["id"])
-                    print("Retweeted: %s" % (rt["text"].encode("utf-8")), file=sys.stdout)
-                    pass
+                    rt['text'] = rt['text'].encode('utf-8')
+                    rt['retweeted_status']['text'] = rt['retweeted_status']['text'].encode('utf-8')
+                    retweets.append(rt)
+                    print("Retweeted: %s" % (rt['text']), file=sys.stdout)
+
                 except TwitterHTTPError as api_error:
                     print('cant retweet:',api_error)
 
@@ -311,7 +321,7 @@ class TwitterBot:
                     return
 
                 print("Error: %s" % (str(api_error)), file=sys.stderr)
-
+        return retweets
 
 
     def auto_follow(self, phrase, count=100, result_type="recent"):
